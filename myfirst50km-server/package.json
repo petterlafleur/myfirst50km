@@ -1,0 +1,17 @@
+{
+  "name": "myfirst50km-server",
+  "version": "1.0.0",
+  "main": "server.js",               // <-- Important! (change from index.js to server.js)
+  "scripts": {
+    "start": "node server.js"         // <-- Important! (Render runs "npm start" by default)
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.9.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}
