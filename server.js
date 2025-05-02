@@ -1,5 +1,5 @@
 // Load required packages
-require('dotenv').config(); // Only needed locally; safe if left here
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
@@ -13,10 +13,6 @@ const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
 
-// Variables to hold token and refresh status
-let accessToken = null;
-let lastRefresh = null;
-
 // Function to refresh Strava access token
 async function refreshAccessToken() {
   try {
@@ -29,31 +25,25 @@ async function refreshAccessToken() {
       }
     });
 
-    accessToken = response.data.access_token;
-    lastRefresh = Date.now();
     console.log("✅ Token refreshed!");
+    return response.data.access_token;
   } catch (err) {
     console.error("❌ Failed to refresh token:", err.response?.data || err.message);
+    throw err;
   }
 }
 
-// Immediately refresh token when server starts
-refreshAccessToken();
-// Then refresh it automatically every 50 minutes
-setInterval(refreshAccessToken, 1000 * 60 * 50);
-
 // Endpoint to get Strava activities
 app.get('/activities', async (req, res) => {
-  if (!accessToken) {
-    return res.status(401).json({ error: "Access token not available" });
-  }
-
   try {
+    const accessToken = await refreshAccessToken();
+
     const response = await axios.get('https://www.strava.com/api/v3/athlete/activities', {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
     });
+
     res.json(response.data);
   } catch (err) {
     console.error("❌ Error fetching activities:", err.response?.data || err.message);
